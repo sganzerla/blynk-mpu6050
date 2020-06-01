@@ -12,7 +12,7 @@ Necessary download and create credentials in smartphone with app Blynk, then cre
 
 ![image](resources/blynk-android.gif)
 
-## How use
+## How to use
 
 Set value credentials with value received for email the Blynk app, and setting wifi your login and password.
 
