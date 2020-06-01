@@ -19,8 +19,10 @@ Adafruit_MPU6050 mpu;
 #define accellValueX V3
 #define accellValueY V4
 #define accellValueZ V5
-#define virtualLCD V6
-WidgetLCD lcd(virtualLCD);
+#define virtualLCD1 V6
+#define virtualLCD2 V7
+WidgetLCD lcd1(virtualLCD1);
+WidgetLCD lcd2(virtualLCD2);
 
 // credential blynk send value for email when created project in mobile app
 char auth[] = "";
@@ -65,9 +67,15 @@ void setup(void)
     setConfigFilterBandwidth(MPU6050_BAND_260_HZ, true);
 
     // Print a splash screen:
-    lcd.clear();
-    lcd.print(0, 0, "   GY521 MPU   ");
-    lcd.print(0, 1, " MONITOR THING ");
+    lcd1.clear();
+    lcd1.print(0, 0, " GY521/MPU SET");
+    lcd1.print(0, 1, "Band:");
+    lcd1.print(6, 1, getConfigFilterBandwidth());
+    lcd2.clear();
+    lcd2.print(0, 0, "Gyro:");
+    lcd2.print(7, 0, getConfigGyroScale());
+    lcd2.print(0, 1, "Accell:");
+    lcd2.print(8, 1, getConfigAccelScale());
     delay(100);
 }
 
@@ -77,37 +85,27 @@ void loop()
 
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
- 
-    Serial.print("Accelerometer ");
-    Serial.print("X: ");
-    Serial.print(a.acceleration.x, 2);
-    Serial.print(" m/s^2, ");
-    Serial.print("Y: ");
-    Serial.print(a.acceleration.y, 2);
-    Serial.print(" m/s^2, ");
-    Serial.print("Z: ");
-    Serial.print(a.acceleration.z, 2);
-    Serial.println(" m/s^2");
 
-    Serial.print("Gyroscope ");
-    Serial.print("X: ");
-    Serial.print(g.gyro.x, 2);
-    Serial.print(" rps, ");
-    Serial.print("Y: ");
-    Serial.print(g.gyro.y, 2);
-    Serial.print(" rps, ");
-    Serial.print("Z: ");
-    Serial.print(g.gyro.z, 2);
-    Serial.println(" rps");
+    Serial.print(g.gyro.x, 6);
+    Serial.print(",");
+    Serial.print(g.gyro.y, 6);
+    Serial.print(",");
+    Serial.print(g.gyro.z, 6);
+    Serial.print(",");
+    Serial.print(a.acceleration.x, 6);
+    Serial.print(",");
+    Serial.print(a.acceleration.y, 6);
+    Serial.print(",");
+    Serial.print(a.acceleration.z, 6);
+    Serial.println("");
 
     // Write the values to Blynk:
-    Blynk.virtualWrite(gyroValueX, a.acceleration.x);
-    Blynk.virtualWrite(gyroValueY, a.acceleration.y);
-    Blynk.virtualWrite(gyroValueZ, a.acceleration.z);
-    Blynk.virtualWrite(accellValueX, g.gyro.x);
-    Blynk.virtualWrite(accellValueY, g.gyro.y);
-    Blynk.virtualWrite(accellValueZ, g.gyro.z);
- 
+    Blynk.virtualWrite(gyroValueX, a.gyro.x);
+    Blynk.virtualWrite(gyroValueY, a.gyro.y);
+    Blynk.virtualWrite(gyroValueZ, a.gyro.z);
+    Blynk.virtualWrite(accellValueX, g.acceleration.x);
+    Blynk.virtualWrite(accellValueY, g.acceleration.y);
+    Blynk.virtualWrite(accellValueZ, g.acceleration.z);
 }
 
 void setConfigAccelScale(mpu6050_accel_range_t range_accel, bool print)
@@ -132,71 +130,74 @@ void setConfigFilterBandwidth(mpu6050_bandwidth_t range_bandwidth, bool print)
         getConfigFilterBandwidth();
 }
 
-void getConfigAccelScale()
+String getConfigAccelScale()
 {
     Serial.print("Accelerometer range set to: ");
     switch (mpu.getAccelerometerRange())
     {
     case MPU6050_RANGE_2_G:
-        Serial.println("+-2G");
-        break;
+        Serial.println("2G");
+        return ("2G");
     case MPU6050_RANGE_4_G:
-        Serial.println("+-4G");
-        break;
+        Serial.println("4G");
+        return ("4G");
     case MPU6050_RANGE_8_G:
-        Serial.println("+-8G");
-        break;
+        Serial.println("8G");
+        return ("8G");
     case MPU6050_RANGE_16_G:
-        Serial.println("+-16G");
-        break;
+        Serial.println("16G");
+        return ("16G");
     }
+    return "";
 }
 
-void getConfigGyroScale()
+String getConfigGyroScale()
 {
     Serial.print("Gyro range set to: ");
     switch (mpu.getGyroRange())
     {
     case MPU6050_RANGE_250_DEG:
-        Serial.println("+- 250 deg/s");
-        break;
+        Serial.println("250 deg/s");
+        return ("250 deg/s");
     case MPU6050_RANGE_500_DEG:
-        Serial.println("+- 500 deg/s");
-        break;
+        Serial.println("500 deg/s");
+        return ("500 deg/s");
     case MPU6050_RANGE_1000_DEG:
-        Serial.println("+- 1000 deg/s");
-        break;
+        Serial.println("1000 deg/s");
+        return ("1000 deg/s");
     case MPU6050_RANGE_2000_DEG:
-        Serial.println("+- 2000 deg/s");
-        break;
+        Serial.println("2000 deg/s");
+        return ("2000 deg/s");
     }
+    return "";
 }
 
-void getConfigFilterBandwidth()
+String getConfigFilterBandwidth()
 {
     Serial.print("Filter bandwidth set to: ");
     switch (mpu.getFilterBandwidth())
     {
     case MPU6050_BAND_260_HZ:
         Serial.println("260 Hz");
-        break;
+        return ("260 Hz");
     case MPU6050_BAND_184_HZ:
         Serial.println("184 Hz");
-        break;
+        return ("184 Hz");
     case MPU6050_BAND_94_HZ:
         Serial.println("94 Hz");
-        break;
+        return ("94 Hz");
     case MPU6050_BAND_44_HZ:
         Serial.println("44 Hz");
-        break;
+        return ("44 Hz");
     case MPU6050_BAND_21_HZ:
         Serial.println("21 Hz");
-        break;
+        return ("21 Hz");
     case MPU6050_BAND_10_HZ:
         Serial.println("10 Hz");
-        break;
+        return ("10 Hz");
     case MPU6050_BAND_5_HZ:
         Serial.println("5 Hz");
-        break;
+        return ("5 Hz");
     }
+    return "";
 }
