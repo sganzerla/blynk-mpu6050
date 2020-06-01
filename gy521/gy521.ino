@@ -1,13 +1,45 @@
+/* library MPU6050 */
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BusIO_Register.h>
 #include <Adafruit_I2CDevice.h>
 
+/* library blynk */
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+
+/* config MPU6050 */
 Adafruit_MPU6050 mpu;
+
+/* config blink */
+
+char auth[] = "";
+#define gyroValueX V0
+#define gyroValueY V1
+#define gyroValueZ V2
+#define accellValueX V3
+#define accellValueY V4
+#define accellValueZ V5
+#define virtualLCD V6
+WidgetLCD lcd(virtualLCD);
+
+/* config wifi */
+char ssid[] = "";
+char pass[] = "";
 
 void setup(void)
 {
     Serial.begin(115200);
+
+    Blynk.begin(auth, ssid, pass); // Give us access!
+
+    while (Blynk.connect() == false)
+    { // Be patient.
+        // Wait for Blynk to come online
+    }
+    // Notify immediately on startup
+    Blynk.notify("Device Started");
+
     while (!Serial)
         delay(10); // will pause Zero, Leonardo, etc until serial console opens
 
@@ -22,42 +54,57 @@ void setup(void)
             delay(10);
         }
     }
+    Blynk.notify("MPU6050 Found!");
     Serial.println("MPU6050 Found!");
 
+    // change param (enum values) functions if necessary
     setConfigAccelScale(MPU6050_RANGE_2_G, true);
     setConfigGyroScale(MPU6050_RANGE_250_DEG, true);
     setConfigFilterBandwidth(MPU6050_BAND_260_HZ, true);
 
-    Serial.println("");
+    // Print a splash screen:
+    lcd.clear();
+    lcd.print(0, 0, "   GY521 MPU   ");
+    lcd.print(0, 1, " MONITOR THING ");
     delay(100);
 }
 
 void loop()
 {
+    Blynk.run();
+
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
+ 
+    Serial.print("Accelerometer ");
+    Serial.print("X: ");
+    Serial.print(a.acceleration.x, 2);
+    Serial.print(" m/s^2, ");
+    Serial.print("Y: ");
+    Serial.print(a.acceleration.y, 2);
+    Serial.print(" m/s^2, ");
+    Serial.print("Z: ");
+    Serial.print(a.acceleration.z, 2);
+    Serial.println(" m/s^2");
 
-    // Serial.print("Accelerometer ");
-    // Serial.print("X: ");
-    // Serial.print(a.acceleration.x, 6);
-    // Serial.print(" m/s^2, ");
-    // Serial.print("Y: ");
-    // Serial.print(a.acceleration.y, 6);
-    // Serial.print(" m/s^2, ");
-    // Serial.print("Z: ");
-    // Serial.print(a.acceleration.z, 6);
-    // Serial.println(" m/s^2");
+    Serial.print("Gyroscope ");
+    Serial.print("X: ");
+    Serial.print(g.gyro.x, 2);
+    Serial.print(" rps, ");
+    Serial.print("Y: ");
+    Serial.print(g.gyro.y, 2);
+    Serial.print(" rps, ");
+    Serial.print("Z: ");
+    Serial.print(g.gyro.z, 2);
+    Serial.println(" rps");
 
-    // Serial.print("Gyroscope ");
-    // Serial.print("X: ");
-    // Serial.print(g.gyro.x, 6);
-    // Serial.print(" rps, ");
-    // Serial.print("Y: ");
-    // Serial.print(g.gyro.y, 6);
-    // Serial.print(" rps, ");
-    // Serial.print("Z: ");
-    // Serial.print(g.gyro.z, 6);
-    // Serial.println(" rps");
+    // Write the values to Blynk:
+    Blynk.virtualWrite(gyroValueX, a.acceleration.x);
+    Blynk.virtualWrite(gyroValueY, a.acceleration.y);
+    Blynk.virtualWrite(gyroValueZ, a.acceleration.z);
+    Blynk.virtualWrite(accellValueX, g.gyro.x);
+    Blynk.virtualWrite(accellValueY, g.gyro.y);
+    Blynk.virtualWrite(accellValueZ, g.gyro.z);
 
     delay(10);
 }
