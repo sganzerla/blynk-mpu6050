@@ -13,7 +13,6 @@ Adafruit_MPU6050 mpu;
 
 /* config blink */
 
-char auth[] = "";
 #define gyroValueX V0
 #define gyroValueY V1
 #define gyroValueZ V2
@@ -22,6 +21,9 @@ char auth[] = "";
 #define accellValueZ V5
 #define virtualLCD V6
 WidgetLCD lcd(virtualLCD);
+
+// credential blynk send value for email when created project in mobile app
+char auth[] = "";
 
 /* config wifi */
 char ssid[] = "";
@@ -105,8 +107,7 @@ void loop()
     Blynk.virtualWrite(accellValueX, g.gyro.x);
     Blynk.virtualWrite(accellValueY, g.gyro.y);
     Blynk.virtualWrite(accellValueZ, g.gyro.z);
-
-    delay(10);
+ 
 }
 
 void setConfigAccelScale(mpu6050_accel_range_t range_accel, bool print)

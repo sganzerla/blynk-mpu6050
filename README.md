@@ -12,6 +12,20 @@ Necessary download and create credentials in smartphone with app Blynk, then cre
 
 ![image](resources/blynk-android.png)
 
+## How use
+
+Set value credentials with value received for email the Blynk app, and setting wifi your login and password.
+
+```
+// credential blynk send value for email when created project in mobile app
+char auth[] = "";
+
+/* config wifi */
+char ssid[] = "";
+char pass[] = "";
+
+```
+
 ## Reference
 
 ![Adafruit_MPU6050.h Functions](https://adafruit.github.io/Adafruit_MPU6050/html/class_adafruit___m_p_u6050.html) Access in 31/05/2020
